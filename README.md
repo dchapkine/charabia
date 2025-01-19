@@ -56,3 +56,8 @@ Dispatches up to X commits randomly acroll all existing repositories (into defau
 ./index.mjs gen commits X
 ```
 
+Fix default branches
+
+```
+./index.mjs fix default-branch
+```
