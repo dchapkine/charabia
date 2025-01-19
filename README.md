@@ -56,6 +56,12 @@ Dispatches up to X commits randomly acroll all existing repositories (into defau
 ./index.mjs gen commits X
 ```
 
+Creates batches of random pull requests on randomly picked existing repositories, until it reaches X total PRs
+
+```
+./index.mjs gen pullrequests X
+```
+
 Fix default branches
 
 ```

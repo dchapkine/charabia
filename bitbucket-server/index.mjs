@@ -396,6 +396,112 @@ async function checkAndSetDefaultBranch() {
     }
 }
 
+async function generatePullRequests(count) {
+    let repos = [];
+    try {
+        repos = JSON.parse(await fs.readFile('repos.json', 'utf-8'));
+    } catch (err) {
+        console.error('Error reading repos.json:', err);
+        return;
+    }
+
+    let i = 0;
+    while (i < count) {
+        let j = 0;
+        const localPRsMax = Math.floor(Math.random() * 30)+10;
+
+        const randomRepo = repos[Math.floor(Math.random() * repos.length)];
+        const { project: projectKey, repoName: repoSlug } = randomRepo;
+        const cloneUrl = `https://${encodeURIComponent(BB_ADMIN_USERNAME)}:${encodeURIComponent(BB_ADMIN_PASSWORD)}@${BB_HOST}/scm/${projectKey}/${repoSlug}.git`;
+
+        while (i < count && j < localPRsMax) {
+
+            const localRepoPath = `/tmp/pullrequest_repo_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+
+            console.log(`Processing repository ${repoSlug} for pull request...`);
+
+            try {
+                // Clone the repository
+                await git.clone(cloneUrl, localRepoPath);
+
+                const repoGit = simpleGit(localRepoPath);
+
+                // Fetch updates and determine default branch
+                console.log(`Fetching updates for ${repoSlug}...`);
+                await repoGit.fetch();
+                let defaultBranch = 'main';
+                try {
+                    const remoteBranches = await repoGit.branch(['-r']);
+                    defaultBranch = remoteBranches.all.find(branch => branch.includes('HEAD'))
+                        ?.replace('origin/HEAD -> origin/', '') || 'main';
+                } catch (e) {
+                    console.warn('Could not determine default branch, using "main"');
+                }
+
+                // Checkout default branch and pull latest changes
+                await repoGit.checkout(defaultBranch);
+                await repoGit.pull('origin', defaultBranch, { '--rebase': true });
+
+                // Create a new branch
+                const newBranchName = `feature/${await generateRandom('Generate a unique branch name ' + Math.random(), 5)}`;
+                console.log(`Creating new branch: ${newBranchName}`);
+                await repoGit.checkoutLocalBranch(newBranchName);
+
+                // Add a random commit
+                const filePath = `${localRepoPath}/file_${Math.random().toString(36).substring(7)}.txt`;
+                const fileContent = `This is an automated commit for pull request.`;
+                await fs.writeFile(filePath, fileContent);
+                await repoGit.add(filePath);
+                await repoGit.commit('Automated commit for pull request');
+
+                // Push the new branch
+                console.log(`Pushing branch ${newBranchName}...`);
+                await repoGit.push(['--set-upstream', 'origin', newBranchName]);
+
+                // Open a pull request via API
+                const prBody = {
+                    title: `Automated PR from ${newBranchName}`,
+                    description: `This PR was automatically created from branch ${newBranchName}.`,
+                    state: "OPEN",
+                    open: true,
+                    closed: false,
+                    fromRef: {
+                        id: `refs/heads/${newBranchName}`,
+                        repository: {
+                            slug: repoSlug,
+                            project: { key: projectKey }
+                        }
+                    },
+                    toRef: {
+                        id: `refs/heads/main`,
+                        repository: {
+                            slug: repoSlug,
+                            project: { key: projectKey }
+                        }
+                    },
+                    locked: false,
+                    reviewers: []
+                };
+
+                const prResponse = await apiRequest('POST', `/projects/${projectKey}/repos/${repoSlug}/pull-requests`, null, prBody);
+                console.log(`Pull request created for ${repoSlug}:`, prResponse.title);
+
+                // Cleanup local repository
+                await fs.rm(localRepoPath, { recursive: true, force: true });
+            } catch (err) {
+                console.error(`Error processing repository ${repoSlug}: ${err.message}`);
+            }
+
+            i++;
+            j++;
+            console.log(`${i} PRs created so far`);
+            console.log("");
+        }
+
+    }
+}
+
+
 // Main
 const args = process.argv.slice(2);
 const command = args[0];
@@ -408,6 +514,7 @@ const count = parseInt(args[2], 10);
         else if (command === 'gen' && args[1] === 'projects') await generateProjects(count);
         else if (command === 'gen' && args[1] === 'repos') await generateRepos(count);
         else if (command === 'gen' && args[1] === 'commits') await addCommitsToRepos(count);
+        else if (command === 'gen' && args[1] === 'pullrequests') await generatePullRequests(count);
         else if (command === 'fix' && args[1] === 'default-branch') await checkAndSetDefaultBranch();
         else console.log('Invalid command or arguments.');
     } catch (err) {
