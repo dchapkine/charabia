@@ -416,7 +416,7 @@ async function generatePullRequests(count) {
 
         while (i < count && j < localPRsMax) {
 
-            const localRepoPath = `/tmp/pullrequest_repo_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+            const localRepoPath = `/tmp/charabia_pullrequest_repo_${Date.now()}_${Math.random().toString(36).substring(2)}`;
 
             console.log(`Processing repository ${repoSlug} for pull request...`);
 
