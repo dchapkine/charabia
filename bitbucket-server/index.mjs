@@ -66,7 +66,7 @@ async function apiRequest(method, endpoint, query, body) {
     }
 }
 
-const generatePassword = (length, chars) => {
+const genRandomString = (length, chars) => {
     chars = chars || "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*_-=+"
     let password = "";
     for (let i = 0; i < length; i++) {
@@ -96,7 +96,7 @@ async function generateUsers(count) {
     for (let i = 0; i < count; i++) {
         const username = await generateRandom('Generate a unique lowercase alpahnumeric username ' + Math.random());
         const email = `${username}@example.com`;
-        const password = generatePassword(10)
+        const password = genRandomString(10)
 
         console.log(`creating user: ${username} ${email} ${password}`)
         await apiRequest('POST', '/admin/users', {
@@ -329,7 +329,7 @@ async function addCommitsToRepos(commitCount) {
             }
 
             // Add a new file and commit
-            const maxToAddLocally = Math.floor(Math.random() * 5)+5;
+            const maxToAddLocally = Math.floor(Math.random() * 5)+40;
             let locallyAddedCommits = 0;
             console.log(`Adding UP to ${maxToAddLocally} commits to ${repoSlug} into ${localRepoPath}...`);
             while (commitsAdded < commitCount && locallyAddedCommits < maxToAddLocally) {
@@ -339,13 +339,20 @@ async function addCommitsToRepos(commitCount) {
                 await repoGit.add(filePath);
                 await repoGit.commit(`Automated commit ${filePath}`);
                 console.log(`  + Automated commit ${filePath}`);
+                
+                // randomly tag or not the commit
+                if (Math.random() > 0.2) {
+                    const tagName = `v${genRandomString(5, '0123456789')}`;
+                    await repoGit.addTag(tagName);
+                    console.log(`  + Automated tag ${tagName}`);
+                }
                 commitsAdded++;
                 locallyAddedCommits++;
             }
 
             // Push changes to remote
             console.log(`Pushing commit to ${repoSlug} into ${localRepoPath}...`);
-            await repoGit.push('origin', defaultBranch);
+            await repoGit.push(['--tags', 'origin', defaultBranch]);
 
             console.log(`  + Commit added and pushed to ${repoSlug}`);
 
