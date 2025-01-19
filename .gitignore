@@ -128,3 +128,13 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#
+.env
+package-lock.json
+bitbucket-server/users.json
+bitbucket-server/groups.json
+bitbucket-server/projects.json
+bitbucket-server/repos.json
+bitbucket-server/commits.json
+bitbucket-server/pullrequests.json
