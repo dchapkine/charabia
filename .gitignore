@@ -138,3 +138,6 @@ bitbucket-server/projects.json
 bitbucket-server/repos.json
 bitbucket-server/commits.json
 bitbucket-server/pullrequests.json
+
+#
+.aibuddy.json
