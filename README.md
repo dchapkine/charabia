@@ -32,7 +32,7 @@ GITHUB_TOKEN=....
 List all users
 
 ```
-index.mjs list users
+ghes.sh list users
 
 Global Users:
 ghost
@@ -55,7 +55,7 @@ cybersec
 List all repos (in all organisations)
 
 ```
-./index.mjs list repos
+./ghes.sh list repos
 
 Global Repositories:
 https://github.dev/admin2/test
@@ -73,7 +73,7 @@ https://github.dev/orange/repo-1737505927637-5
 List all organisations
 
 ```
-./index.mjs list orgs
+./ghes.sh list orgs
 
 Global Organizations:
 test
@@ -90,7 +90,7 @@ cybersec
 List all teams
 
 ```
-./index.mjs list teams
+./ghes.sh list teams
 
 All Teams Across Organizations:
 https://github.dev/orgs/automative/teams/team-1737527990835-0
@@ -109,7 +109,7 @@ https://github.dev/orgs/orange/teams/team-1737582983812-1
 List all projects
 
 ```
-./index.mjs list projects
+./ghes.sh list projects
 
 All Projects Across Organizations:
 https://github.dev/orgs/space/projects/1
@@ -140,7 +140,7 @@ Can't be done via API: not supported by API
 Generate X projects in a random organisation
 
 ```
-./index.mjs gen projects 3
+./ghes.sh gen projects 3
 
 random picked org cybersec
 Created project: project-1737585319533-0
@@ -151,7 +151,7 @@ Created project: project-1737585320273-2
 Generate X repos in a random organisation
 
 ```
-./index.mjs gen repos 3
+./ghes.sh gen repos 3
 
 random picked org space
 Created repository: repo-1737585520371-0 - https://github.dev/space/repo-1737585520371-0
@@ -162,7 +162,7 @@ Created repository: repo-1737585521771-2 - https://github.dev/space/repo-1737585
 Generate X teams in a random organisation
 
 ```
-./index.mjs gen teams 3
+./ghes.sh gen teams 3
 random picked org test2
 Created team: team-1737585515052-0 - https://github.dev/orgs/test2/teams/team-1737585515052-0
 Created team: team-1737585515514-1 - https://github.dev/orgs/test2/teams/team-1737585515514-1
@@ -196,41 +196,41 @@ OPENAI_API_TOKEN=...
 Generate local X users
 
 ```
-./index.mjs gen users X
+./bbs.sh gen users X
 ```
 
 Generate X local groups and assign random existing  users to it
 
 ```
-./index.mjs gen groups X
+./bbs.sh gen groups X
 ```
 
 Generate X local projects and assign random existing users to it
 
 ```
-./index.mjs gen projects X
+./bbs.sh gen projects X
 ```
 
 Generate X local repos and assign to random project
 
 ```
-./index.mjs gen repos X
+./bbs.sh gen repos X
 ```
 
 Dispatches up to X commits randomly acroll all existing repositories (into default branch), using batches of 5-10 random commits per repo.
 
 ```
-./index.mjs gen commits X
+./bbs.sh gen commits X
 ```
 
 Creates batches of random pull requests on randomly picked existing repositories, until it reaches X total PRs
 
 ```
-./index.mjs gen pullrequests X
+./bbs.sh gen pullrequests X
 ```
 
 Fix default branches
 
 ```
-./index.mjs fix default-branch
+./bbs.sh fix default-branch
 ```
