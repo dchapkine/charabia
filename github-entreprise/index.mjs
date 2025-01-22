@@ -222,6 +222,30 @@ async function generateTeams(count) {
   }
 }
 
+// --- New Generator Function: Generate issues ---
+async function generateIssues(count) {
+  const repos = await getAllReposGlobal();
+  if (!repos.length) {
+    throw new Error('No repositories found to create issues in.');
+  }
+
+  for (let i = 0; i < count; i++) {
+    const randomRepo = repos[Math.floor(Math.random() * repos.length)];
+    const issueTitle = `Issue ${Date.now()}-${i}`;
+    try {
+      const issue = await octokit.rest.issues.create({
+        owner: randomRepo.owner.login,
+        repo: randomRepo.name,
+        title: issueTitle,
+        body: 'This is an automatically generated issue.'
+      });
+      console.log(`Created issue: ${issue.data.title} - ${issue.data.html_url}`);
+    } catch (err) {
+      console.error(`Failed to create issue ${issueTitle} in ${randomRepo.full_name}: ${err.message}`);
+    }
+  }
+}
+
 // --- Command-Line Interface Execution ---
 
 (async () => {
@@ -236,6 +260,7 @@ async function generateTeams(count) {
     else if (command === 'gen' && args[1] === 'projects') await generateProjects(count);
     else if (command === 'gen' && args[1] === 'repos') await generateRepos(count);
     else if (command === 'gen' && args[1] === 'teams') await generateTeams(count);
+    else if (command === 'gen' && args[1] === 'issues') await generateIssues(count);
     else if (command === 'list' && args[1] === 'users') await listAllUsersGlobal();
     else if (command === 'list' && args[1] === 'repos') await listAllReposGlobal();
     else if (command === 'list' && args[1] === 'orgs') await listAllOrganizations();
