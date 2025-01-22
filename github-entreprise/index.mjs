@@ -95,6 +95,25 @@ async function getAllProjectsGlobal() {
   return allProjects;
 }
 
+// --- New Function: Get all issues from all organizations and users ---
+async function getAllIssuesGlobal() {
+  const repos = await getAllReposGlobal();
+  let allIssues = [];
+  for (const repo of repos) {
+    try {
+      const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
+        owner: repo.owner.login,
+        repo: repo.name,
+        state: 'all'
+      });
+      allIssues = allIssues.concat(issues);
+    } catch (err) {
+      console.warn(`Could not list issues for repository ${repo.full_name}: ${err.message}`);
+    }
+  }
+  return allIssues;
+}
+
 // --- List Functions: Call get functions and display results ---
 
 async function listAllUsersGlobal() {
@@ -125,6 +144,13 @@ async function listAllProjectsGlobal() {
   const projects = await getAllProjectsGlobal();
   displayList("All Projects Across Organizations", projects, 'html_url');
   return projects;
+}
+
+// --- New List Function: List all issues globally ---
+async function listAllIssuesGlobal() {
+  const issues = await getAllIssuesGlobal();
+  displayList("All Issues Across Organizations and User Repositories", issues, 'html_url');
+  return issues;
 }
 
 // --- New Function: Get a random organization name ---
@@ -215,6 +241,7 @@ async function generateTeams(count) {
     else if (command === 'list' && args[1] === 'orgs') await listAllOrganizations();
     else if (command === 'list' && args[1] === 'teams') await listAllTeamsGlobal();
     else if (command === 'list' && args[1] === 'projects') await listAllProjectsGlobal();
+    else if (command === 'list' && args[1] === 'issues') await listAllIssuesGlobal();
     else console.log('Invalid command or arguments.');
   } catch (err) {
     console.error('Error:', err.message);
